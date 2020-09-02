@@ -6,6 +6,7 @@ import {employeeData} from "../data/employeeData.js"
 import {projectData} from "../data/projectData.js"
 import {choiseDataBase, clickBackToMain, informAboutErrorWithWorkData} from "../supporting/helpFunction.js";
 import {showPage} from "../showPage.js";
+import {taskData} from "../data/taskData.js";
 
 
 let order
@@ -419,8 +420,25 @@ let wait
 let statusAll = []
 let urgencyAll = []
 let employeeAll = []
+let item = {}
 function fieldTask(){
     wait = 0;
+
+    item = undefined
+    if(order.dataBody.data) {
+        wait++
+        taskData.get(order.dataBody.data.idTask)
+            .then(response => response.json())
+            .then(response => {
+                if (response.error != null) {
+                    informAboutErrorWithWorkData(response)
+                    return
+                }
+                item = response.data
+                wait--
+                drawFieldTask()
+            })
+    }
 
     wait++
     statusAll = []
@@ -487,7 +505,6 @@ function fieldTask(){
 function drawFieldTask(){
     if(wait !== 0) return
     let data = {}
-    let item = order.dataBody.data
     let labelWidth = 180
     data.elements = [
         {
@@ -528,20 +545,13 @@ function drawFieldTask(){
             labelWidth: labelWidth,
             options: urgencyAll
         },
-        {
-            name : "idEmployee",
-            view: "select",
-            label:"Сотрудник:",
-            labelWidth: labelWidth,
-            value: item ? item.employee.idEmployee : "",
-            options: employeeAll
-        },
     ]
 
     data.rules = {
         "formulation": webix.rules.isNotEmpty,
         "theoreticalTimeWork": webix.rules.isNumber,
     }
+    data.height = 400
 
     if(item){
         //for case with edit task
@@ -552,12 +562,21 @@ function drawFieldTask(){
             labelWidth: labelWidth,
             value: item ? item.realTimeWork : 0
         })
+        if(item.employee.idEmployee) {
+            data.elements.push({
+                view: "label",
+                label: "Сотрудник: " + item.employee.firstName + " " + item.employee.middleName + " " + item.employee.lastName,
+            })
+        }
+
         data.rules.realTimeWork = webix.rules.isNumber
+
+        data.height = 450
+
     }
 
     data.state = mainData.stateEmployee
     data.width = 700
-    data.height = 500
     drawField(data)
 }
 
@@ -633,9 +652,6 @@ function clickAddConfirm(){
     })
                 
     clickCancelAndCloseForAll()
-    if(order.bodyBlockId.includes(mainData.popupBlock)){
-        progressBar()
-    }
 }
 
 function clickEditConfirm(){
@@ -658,15 +674,17 @@ function clickEditConfirm(){
     })
                 
     clickCancelAndCloseForAll()
-
-    if(order.bodyBlockId.includes(mainData.popupBlock)){
-        progressBar()
-    }
 }
 
 function clickCancelAndCloseForAll(){
+    //осторожно showpage in progress bar ожет сбить данные
+    if(order.dataBody.helpFunction){
+        order.dataBody.helpFunction()
+    }
+
     if(order.bodyBlockId.includes(mainData.popupBlock)){
         $$(mainData.popupBlock).hide()
+        progressBar()
     } else {
         clickBackToMain()
     }

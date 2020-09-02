@@ -1,11 +1,10 @@
-import {mainData, Order} from "./../data/mainData.js";
-import {projectData} from "./../data/projectData.js"
-import {employeeData} from "./../data/employeeData.js"
-import {projectTeamData} from "../js/../data/projectTeamData.js"
-import {taskData} from "./../data/taskData.js";
-import {listTaskData} from "./../data/listTaskData.js";
-import {showPage} from "./../showPage.js";
-
+import {mainData, Order} from "../data/mainData.js";
+import {projectData} from "../data/projectData.js"
+import {employeeData} from "../data/employeeData.js"
+import {projectTeamData} from "../data/projectTeamData.js"
+import {taskData} from "../data/taskData.js";
+import {listTaskData} from "../data/listTaskData.js";
+import {showPage} from "../showPage.js";
 
 export function getHeaderIdForThisPage(){
     let headerId 
@@ -81,5 +80,26 @@ export function informAboutErrorWithWorkData(data, methodResolve = "Переза
         expire: -1,
 
     })
+}
 
+export function deleteEmployeeFromTasks(employee, idProject){
+    taskData.getByEmployee(employee)
+        .then(response =>  response.json())
+        .then( response => {
+            if(response.error){
+                informAboutErrorWithWorkData(response)
+                return
+            }
+            if(!response.data){
+                response.data = []
+            }
+            response.data.forEach(task => {
+
+                if(task.listTask.project.idProject === idProject){
+                    task.employee.idEmployee = 0
+                    taskData.update(task)
+                }
+            })
+        })
+        .catch(error => informAboutErrorWithWorkData(error))
 }

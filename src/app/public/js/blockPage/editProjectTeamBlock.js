@@ -3,7 +3,8 @@ import {showPage} from "../showPage.js";
 import {projectData} from "../data/projectData.js";
 import {employeeData} from "../data/employeeData.js";
 import {getHeaderIdForThisPage, informAboutErrorWithWorkData} from "../supporting/helpFunction.js";
-import {projectTeamData} from "../data/projectTeamData.js";
+import {projectTeamData} from "../data/projectTeamData.js"
+import {deleteEmployeeFromTasks} from "../supporting/helpFunction.js";
 
 let order
 
@@ -229,14 +230,8 @@ function clickChangeTeamLead(){
     showPage(newOrder)
 }
 
-function clickDeleteItem(_, id){
-    let activeTable
 
-    if($$("employeeDataview").getItem(id)){
-        activeTable = $$("employeeDataview")
-    } else {
-        activeTable = $$("projectDataview")
-    }
+function clickDeleteItem(_, id){
 
     let newOrder = new Order(true, mainData.justTitleHeader, mainData.formBody)
 
@@ -248,13 +243,52 @@ function clickDeleteItem(_, id){
     newOrder.dataBody = { 
         state : mainData.stateDelete,
         form : mainData.typeFormDelete,
-        data : activeTable.getItem(id),
-        objActive : activeTable,
+        data : this.getItem(id),
+        objActive : this,
         dataBase : mainData.stateProjectTeam,
-        idInDataBase : order.dataBody.data.idProjectTeam
+        idInDataBase : order.dataBody.data.idProjectTeam,
+        helpFunction : restTaskForEmployeeOrProject
     }
 
     showPage(newOrder)
+}
+
+function restTaskForEmployeeOrProject(){
+    if(this.data.idEmployee){
+        let employee = this.data
+        projectData.getProjectByProjectTeam(order.dataBody.data)
+        .then(response =>  response.json())
+        .then( response => {
+            if(response.error){
+                informAboutErrorWithWorkData(response)
+                return
+            }
+            if(!response.data){
+                response.data = []
+            }
+            for(let project of response.data) {
+                deleteEmployeeFromTasks(employee, project.idProject)
+            }
+        })
+        .catch(error => informAboutErrorWithWorkData(error))
+    } else {
+        let project = this.data
+        employeeData.getByProjectTeam({idProjectTeam : this.idInDataBase})
+            .then(response =>  response.json())
+            .then( response => {
+                if(response.error){
+                    informAboutErrorWithWorkData(response)
+                    return
+                }
+                if(!response.data){
+                    response.data = []
+                }
+                for(let employee of response.data) {
+                    deleteEmployeeFromTasks(employee, project.idProject)
+                }
+            })
+            .catch(error => informAboutErrorWithWorkData(error))
+    }
 }
 
 function clickAddEmployee(){

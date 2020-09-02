@@ -4,6 +4,10 @@ const URL = "/task/"
 
 class TaskData{
 
+    get(idTask){
+        return fetch(URL + idTask);
+    }
+
     getByListTask(listTask){
         return fetch(URL + "listTask/" + listTask.idListTask);
     }
@@ -34,17 +38,18 @@ class TaskData{
     }
 
     update(task, idTask){
-        if(!idTask) {
+        if(!task.idTask) {
+            //update from form
             task.idTask = +idTask
-        }
-        task.employee = {
-            idEmployee : +task.idEmployee
-        }
-        task.status = {
-            idStatus : +task.idStatus
-        }
-        task.urgency = {
-            idUrgency : +task.idUrgency
+            task.employee = {
+                idEmployee: +task.idEmployee
+            }
+            task.status = {
+                idStatus: +task.idStatus
+            }
+            task.urgency = {
+                idUrgency: +task.idUrgency
+            }
         }
         task.theoreticalTimeWork = +task.theoreticalTimeWork
         task.realTimeWork = +task.realTimeWork

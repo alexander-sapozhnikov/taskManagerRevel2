@@ -96,3 +96,4 @@ export class Order{
 // Опа! Костыль для обнволения страницы
 // order.dataBody.oldOrder
 // order.dataBody.idInDataBase - id изменяемого элемента
+// order.dataBody.helpFunction - вспомагательная функция она может либо обновлять часть страницы либо делать какие-то дествия

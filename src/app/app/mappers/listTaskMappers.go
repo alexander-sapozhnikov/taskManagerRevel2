@@ -36,7 +36,11 @@ func ListTaskUpdate(listTask models.ListTask) error {
 }
 
 func ListTaskDelete(listTask models.ListTask) error {
-	sqlString := `DELETE FROM listTask WHERE idlistTask = $1`
+	sqlString := `DELETE FROM task WHERE idlistTask = $1`
 	_, err := DB.Exec(sqlString, listTask.IdListTask)
+
+	sqlString = `DELETE FROM listTask WHERE idlistTask = $1`
+	_, err = DB.Exec(sqlString, listTask.IdListTask)
+
 	return err
 }

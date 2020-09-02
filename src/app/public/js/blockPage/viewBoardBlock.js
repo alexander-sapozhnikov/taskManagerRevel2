@@ -5,12 +5,14 @@ import {mainData, Order} from "../data/mainData.js";
 import {informAboutErrorWithWorkData} from "../supporting/helpFunction.js";
 import {employeeData} from "../data/employeeData.js";
 import {projectData} from "../data/projectData.js";
+import {deleteEmployeeFromTasks} from "../supporting/helpFunction.js";
 
 /**
  * нужно изменить clickeditTask на все поля что бы получала дданные
  */
 let order
-let projectTeam 
+let projectTeam
+const idBlockTask = "blockTask"
 
 export function viewBoardBlock(o){
     order = o
@@ -74,7 +76,7 @@ function drawViewBoardBlock(){
             {
                 gravity : 1.8,
                 header:"Задачи проекта",
-                body: {id : "blockTasks",},
+                body: {id : idBlockTask,},
                 collapsed:false
             },
         ]
@@ -134,12 +136,18 @@ function clickChangeProjectTeam(){
         form : mainData.typeFormEdit,
         dataBase : mainData.stateProject,
         idInDataBase : order.dataBody.data.idProject,
-        oldOrder : order
+        oldOrder : order,
+        helpFunction : resetTaskForOtherProjectTeam
     }
 
     showPage(newOrder)
 }
 
+function resetTaskForOtherProjectTeam(){
+    projectTeam.employees.forEach(employee => {
+        deleteEmployeeFromTasks(employee, order.dataBody.data.idProject)
+    })
+}
 
 function blockKanban(){
     let heightHourPX = 50
@@ -235,24 +243,40 @@ function drawKanbanEmployee(id, dataKanban){
         data: dataKanban,
         on: {
             onAfterDrop : clickOnBeforeDropBlockKanban,
-            onItemClick : clickEditTask
+            onItemClick : clickEditTask,
+            onAfterAdd :  clickAfterAddInKanbanList,
         },
 
     }, $$(id))
 }
 
-function clickOnBeforeDropBlockKanban(){
+function clickAfterAddInKanbanList(){
+    let source = webix.DragControl.getContext();
+    let id = source.to.getFirstId()
+    while(id){
+        let task = source.to.getItem(id)
+        task.position = (source.to.getIndexById(id))
+        taskData.update(task)
+        id = source.to.getNextId(id)
+    }
+}
+
+function clickOnBeforeDropBlockKanban(context){
     let source = webix.DragControl.getContext();
     let task = source.to.getItem(source.source[0])
     //id block wich we want insert his id example employee1
-    task.idEmployee = source.to.B.id.slice(8)
+    task.employee ={}
+    task.employee.idEmployee = +source.to.B.id.slice(8)
     taskData.update(task)
+    if(source.from.B.id === idBlockTask){
+        source.from.add(task)
+    }
 }
 
 let activeListTask
 function blockTasks(){
-    webix.extend($$("blockTasks"), webix.ProgressBar);
-    $$("blockTasks").showProgress({
+    webix.extend($$(idBlockTask), webix.ProgressBar);
+    $$(idBlockTask).showProgress({
         type:"icon",
         hide : false
     });
@@ -274,9 +298,9 @@ function blockTasks(){
 
 function drawBlockTasks(listTasks){
     let tasks = []
-    activeListTask = listTasks[0]
+
     webix.ui({
-        id : "blockTasks",
+        id : idBlockTask,
         view:"accordion",
         type:"clean",
         rows:[
@@ -332,7 +356,7 @@ function drawBlockTasks(listTasks){
                         },
                         {
                             view:"list",
-                            id : "blockTasks",
+                            id : idBlockTask,
                             template: "#formulation#"
                                 + "<span class='editTask fas fa-edit' style = ' font-size : 17px; cursor: pointer; float: right'></span>"
                                 + " <span class='deleteTask fas fa-trash' style = ' font-size : 17px; cursor: pointer; float: right'></span> ",
@@ -341,11 +365,11 @@ function drawBlockTasks(listTasks){
                             drag : true,
                             onClick: {
                                 "deleteTask" : clickDeleteTask,
-                                "editTask" : clickEditTask,
                             },
                             on: {
                                 onBeforeDrag: clickOnBeforeDragBlockTask,
                                 onBeforeDrop : clickOnBeforeDropBlockTask,
+                                onItemClick : clickEditTask,
                             },
                         },
                         {
@@ -360,11 +384,11 @@ function drawBlockTasks(listTasks){
                 }
             }
         ]
-    }, $$("blockTasks"))
+    }, $$(idBlockTask))
 
     $$("blockTasksFind").attachEvent("onTimedKeyPress",function(){
         var value = this.getValue().toLowerCase();
-        $$("blockTasks").filter(function(obj){
+        $$(idBlockTask).filter(function(obj){
             console.log(obj.title)
             return obj.formulation.toLowerCase().indexOf(value) > -1
                 || obj.description.toLowerCase().indexOf(value) > -1;
@@ -373,18 +397,35 @@ function drawBlockTasks(listTasks){
 }
 
 function clickOnBeforeDragBlockTask(context){
-    if($$("blockTasks").getItem(context.start).employee.idEmployee > 0){
+    if($$(idBlockTask).getItem(context.start).employee.idEmployee > 0){
         webix.message("Это задание уже есть на доске")
         return false
     }
 }
 
-function clickOnBeforeDropBlockTask(){
+function clickOnBeforeDropBlockTask(context){
     let source = webix.DragControl.getContext();
+    if(source.from.B.id === idBlockTask){
+        return false
+    }
     let task = source.from.getItem(source.source[0])
-    task.idEmployee = 0
+    task.employee ={}
+    task.employee.idEmployee = 0
+
+    let id = context.to.getFirstId()
+    while(id){
+        if(context.to.getItem(id).idTask === task.idTask){
+            context.to.getItem(id).employee.idEmployee = 0
+            break
+        }
+        id = context.to.getNextId(id)
+    }
+
+    source.from.remove(source.source[0])
     taskData.update(task)
+    return false
 }
+
 
 
 function clickAddTask(){
@@ -412,7 +453,7 @@ function clickAddTask(){
     showPage(newOrder)
 }
 
-function clickEditTask(context, id){
+function clickEditTask(id){
     let newOrder = new Order(true, mainData.justTitleHeader, mainData.formBody)
 
     newOrder.dataHeader = {
@@ -422,11 +463,11 @@ function clickEditTask(context, id){
     newOrder.dataBody = { 
         state : mainData.stateTask,
         form : mainData.typeFormEdit,
-        data : $$("blockTasks").getItem(id),
-        objActive : $$("blockTasks"),
+        data : this.getItem(id),
+        objActive : this,
         dataBase : mainData.stateTask,
         oldOrder : order,
-        idInDataBase : $$("blockTasks").getItem(id).idTask
+        idInDataBase : this.getItem(id).idTask
     }
     showPage(newOrder)
     return false
@@ -442,9 +483,9 @@ function clickDeleteTask(_, id){
     newOrder.dataBody = { 
         state : mainData.stateDelete,
         form : mainData.typeFormDelete,
-        data : $$("blockTasks").getItem(id),
-        objActive : $$("blockTasks"),
-        dataBase : mainData.stateTask
+        data : $$(idBlockTask).getItem(id),
+        objActive : $$(idBlockTask),
+        dataBase : mainData.stateTask,
     }
     showPage(newOrder)
     return false
@@ -500,15 +541,16 @@ function clickDeleteListTask(_, id){
         form : mainData.typeFormDelete,
         data : $$("blockListTask").getItem(id),
         objActive : $$("blockListTask"),
-        dataBase : mainData.stateListTask
+        dataBase : mainData.stateListTask,
+        oldOrder : order,
     }
     showPage(newOrder)
     return false
 }
 
 function clickChoiceListTask(id){
-    webix.extend($$("blockTasks"), webix.ProgressBar);
-    $$("blockTasks").showProgress({
+    webix.extend($$(idBlockTask), webix.ProgressBar);
+    $$(idBlockTask).showProgress({
         type:"icon",
         hide : false
     });
@@ -534,8 +576,8 @@ function clickChoiceListTask(id){
             if(!response.data){
                 response.data = []
             }
-            $$("blockTasks").clearAll()
-            $$("blockTasks").parse(response.data)
+            $$(idBlockTask).clearAll()
+            $$(idBlockTask).parse(response.data)
             webix.message({
                 text:"Активный список задач изменен.",
                 type:"success",
