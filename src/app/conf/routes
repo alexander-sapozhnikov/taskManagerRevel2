@@ -1,0 +1,69 @@
+# Routes Config
+#
+# This file defines all application routes (Higher priority routes first)
+#
+
+module:testrunner
+# module:jobs
+
+
+GET     /                                       App.Index
+GET     /project                                App.ProjectAllGet
+GET     /project/:idProject                     App.ProjectGet
+GET     /project/projectTeam/:idProjectTeam     App.ProjectGetByProjectTeam
+POST    /project                                App.ProjectSave
+PUT     /project                                App.ProjectUpdate
+DELETE  /project                                App.ProjectDelete
+
+
+GET     /projectTeam                            App.ProjectTeamAllGet
+GET     /projectTeam/:idProjectTeam             App.ProjectTeamGet
+POST    /projectTeam                            App.ProjectTeamSave
+PUT     /projectTeam                            App.ProjectTeamUpdate
+DELETE  /projectTeam                            App.ProjectTeamDelete
+
+
+GET     /employee                               App.EmployeeAllGet
+GET     /employee/:idEmployee                   App.EmployeeGet
+GET     /employee/projectTeam/:idProjectTeam    App.EmployeeGetByProjectTeam
+POST    /employee                               App.EmployeeSave
+PUT     /employee                               App.EmployeeUpdate
+DELETE  /employee                               App.EmployeeDelete
+
+
+POST     /employeeAndProjectTeam                App.EmployeeAndProjectTeamAdd
+DELETE   /employeeAndProjectTeam                App.EmployeeAndProjectTeamRemove
+
+
+GET     /task/:idTask                           App.TaskGet
+GET     /task/listTask/:idListTask              App.TaskGetByListTask
+GET     /task/employee/:idEmployee              App.TaskGetByEmployee
+POST    /task                                   App.TaskSave
+PUT     /task                                   App.TaskUpdate
+DELETE  /task                                   App.TaskDelete
+
+
+GET     /listTask/project/:idProject            App.ListTaskGetByProject
+POST    /listTask                               App.ListTaskSave
+PUT     /listTask                               App.ListTaskUpdate
+DELETE  /listTask                               App.ListTaskDelete
+
+GET     /urgency                                App.UrgencyAllGet
+GET     /status                                 App.StatusAllGet
+
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Map static resources from the /app/public folder to the /public path
+GET     /public/*filepath                       Static.Serve("public")
+
+# Catch all, this will route any request into the controller path
+#
+#                    **** WARNING ****
+# Enabling this exposes any controller and function to the web.
+# ** This is a serious security issue if used online **
+#
+# For rapid development uncomment the following to add new controller.action endpoints
+# without having to add them to the routes table.
+# *       /:controller/:action                    :controller.:action
