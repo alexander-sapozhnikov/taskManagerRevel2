@@ -7,7 +7,7 @@ import {projectTeamData} from "../data/projectTeamData.js"
 import {deleteEmployeeFromTasks} from "../supporting/helpFunction.js";
 
 let order
-
+const idEmployeeBlock = "employeeDataview"
 export function editProjectTeamBlock(o){
     order = o
     webix.extend($$(order.bodyBlockId), webix.ProgressBar);
@@ -48,7 +48,7 @@ function drawEditProjectTeamBlock(){
                         label : "Сотрудники",
                     },
                     {
-                        id : "employeeDataview",
+                        id : idEmployeeBlock,
                     }
                 ]
             },
@@ -61,8 +61,8 @@ function drawEditProjectTeamBlock(){
         ]
     }, $$(order.bodyBlockId))
 
-    webix.extend($$("employeeDataview"), webix.ProgressBar);
-    $$("employeeDataview").showProgress({
+    webix.extend($$(idEmployeeBlock), webix.ProgressBar);
+    $$(idEmployeeBlock).showProgress({
         type:"icon",
         hide : false
     });
@@ -119,7 +119,7 @@ function blockEmployee(){
 
 function drawBlockEmployee(employees){
     webix.ui({
-        id : "employeeDataview",
+        id : idEmployeeBlock,
         view:"dataview",
         select:true,
         xCount:7,
@@ -134,7 +134,7 @@ function drawBlockEmployee(employees){
             "deleteBtn" : clickDeleteItem,
             "addBtn" : clickAddEmployee,
         },
-    }, $$("employeeDataview"))
+    }, $$(idEmployeeBlock))
 }
 
 function blockProject() {
@@ -235,9 +235,15 @@ function clickDeleteItem(_, id){
 
     let newOrder = new Order(true, mainData.justTitleHeader, mainData.formBody)
 
+    let idHeader = mainData.employeeHeaderId
+
+    if(this !== $$(idEmployeeBlock)){
+        idHeader = mainData.projectTeamHeaderId
+    }
+
     newOrder.dataHeader = {
          headerTitle : mainData.headerTitleMap.get(mainData.projectTeamHeaderId),
-         innerHeaderTitle : mainData.wordDelete + mainData.headerTitleAndBackMap.get(getHeaderIdForThisPage())
+         innerHeaderTitle : mainData.wordDelete + mainData.headerTitleAndBackMap.get(idHeader)
     }
 
     newOrder.dataBody = { 
@@ -304,7 +310,7 @@ function clickAddEmployee(){
         dataBase : mainData.stateProjectTeam,
         form : mainData.typeFormEdit,
         data : order.dataBody.data, 
-        objActive : $$("employeeDataview"),
+        objActive : this,
         idInDataBase : order.dataBody.data.idProjectTeam,
         oldOrder : order
     }
@@ -317,7 +323,7 @@ function clickAddProject(){
 
     newOrder.dataHeader = {
         headerTitle : $$(mainData.headerTitleId).getValue(),
-        innerHeaderTitle : mainData.wordAdd + mainData.headerTitleAndBackMap.get(mainData.employeeHeaderId)
+        innerHeaderTitle : mainData.wordAdd + mainData.headerTitleAndBackMap.get(mainData.projectHeaderId)
     }
 
     newOrder.dataBody = {
@@ -325,7 +331,7 @@ function clickAddProject(){
         dataBase : mainData.stateProjectTeam,
         form : mainData.typeFormEdit,
         data : order.dataBody.data, 
-        objActive : $$("projectDataview"),
+        objActive : this,
         idInDataBase : order.dataBody.data.idProjectTeam,
         oldOrder : order
     }

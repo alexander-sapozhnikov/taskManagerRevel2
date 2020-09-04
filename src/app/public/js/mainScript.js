@@ -64,26 +64,23 @@ webix.ready(function(){
         ]
     })
 
-    let order = new Order(false, mainData.searchHeader, mainData.mainBody)
-    order.dataHeader = { headerTitle : mainData.headerTitleMap.get(mainData.projectHeaderId)}
-    order.dataBody = { 
-        state : mainData.stateProject, 
-        dataBase : mainData.stateProject
+    // let order = new Order(false, mainData.searchHeader, mainData.mainBody)
+    // order.dataHeader = { headerTitle : mainData.headerTitleMap.get(mainData.projectHeaderId)}
+    // order.dataBody = {
+    //     state : mainData.stateProject,
+    //     dataBase : mainData.stateProject
+    // }
+    // showPage(order)
+
+    let order = new Order(false, mainData.titleAndBackHeader, mainData.viewBoardBody);
+    order.dataHeader = {
+        headerTitle : mainData.headerTitleMap.get(mainData.projectHeaderId),
+        innerHeaderTitle : "Проект : dg"
+    }
+    order.dataBody = {
+        data : {idProject: 8, nameProject: "dg", projectTeam: {idProjectTeam: 1, nameProjectTeam: "Google team"}, id: 1598276266385}
     }
     showPage(order)
-
-    // let order = new Order(false, mainData.titleAndBackHeader, mainData.viewBoardBody);
-
-    // order.dataHeader = {
-    //     headerTitle : $$(mainData.headerTitleId).getValue(),
-    //     innerHeaderTitle : "Проект : Google"
-    // }
-
-    // order.dataBody = {
-    //     data : {idProject: 3, name: "three", projectTeam: "comand 333", id: 1598276266385}
-    // }
-
-    // showPage(order)
 });
 
 

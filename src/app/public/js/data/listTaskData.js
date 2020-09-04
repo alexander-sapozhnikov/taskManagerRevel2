@@ -3,7 +3,18 @@ import {dataUsualAction} from "../supporting/dataUsualAction.js";
 const URL = "/listTask/"
 
 class ListTaskData{
-    getByProject(idProject){ 
+    getByProject(idProject){
+        // let xhr = new XMLHttpRequest();
+        // xhr.open("GET", URL + "project/" + idProject)
+        // xhr.send()
+        // xhr.onload = function() {
+        //     if (xhr.status != 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+        //         alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
+        //     } else { // если всё прошло гладко, выводим результат
+        //         alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
+        //     }
+        // };
+        //
         return fetch(URL + "project/" + idProject)
     }
 

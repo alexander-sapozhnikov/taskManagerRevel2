@@ -16,6 +16,10 @@ class TaskData{
         return fetch(URL + "employee/" + employee.idEmployee);
     }
 
+    getByEmployeeAndDate(employee, date){
+        return fetch(URL + "employee/" + employee.idEmployee + "/date/" + date.toString().split("(Армения, стандартное время)", 1));
+    }
+
     save(task, idListTask){
         task.listTask = {
             idListTask : +idListTask
@@ -41,11 +45,11 @@ class TaskData{
         if(!task.idTask) {
             //update from form
             task.idTask = +idTask
-            task.employee = {
-                idEmployee: +task.idEmployee
-            }
             task.status = {
                 idStatus: +task.idStatus
+            }
+            task.employee = {
+                idEmployee : -1
             }
             task.urgency = {
                 idUrgency: +task.idUrgency

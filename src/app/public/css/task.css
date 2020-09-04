@@ -1,0 +1,31 @@
+.taskInKanban{
+    display: flex;
+}
+
+
+.textTaskInKanban{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+}
+.textTaskInKanban p{
+    text-align: center;
+    height: auto;
+    margin: auto;
+    line-height: 19px;
+
+}
+
+.urgentBlockInTaskInKanban{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 17px;
+}
+
+.urgentInTaskInKanban{
+    font-size: 25px;
+    height: 8px;
+}
+

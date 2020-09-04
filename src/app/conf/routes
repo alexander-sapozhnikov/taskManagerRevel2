@@ -37,6 +37,7 @@ DELETE   /employeeAndProjectTeam                App.EmployeeAndProjectTeamRemove
 
 GET     /task/:idTask                           App.TaskGet
 GET     /task/listTask/:idListTask              App.TaskGetByListTask
+GET     /task/employee/:idEmployee/date/:date   App.TaskGetByEmployeeAndDate
 GET     /task/employee/:idEmployee              App.TaskGetByEmployee
 POST    /task                                   App.TaskSave
 PUT     /task                                   App.TaskUpdate

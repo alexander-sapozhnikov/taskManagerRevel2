@@ -144,7 +144,7 @@ function clickOnItem(id){
         order.dataBody = {
             state : defineStateThroughTitleHeaderOrId(),
             form : mainData.typeFormEdit,
-            data : $$(mainData.bodyBlockId).getItem(id),
+            data : this.getItem(id),
             dataBase : defineStateThroughTitleHeaderOrId(),
             idInDataBase : $$(mainData.bodyBlockId).getItem(id).idEmployee
         }
@@ -155,13 +155,12 @@ function clickOnItem(id){
 
         newOrder.dataHeader = {
             headerTitle : $$(mainData.headerTitleId).getValue(),
-            innerHeaderTitle : "Проект : " + $$(mainData.bodyBlockId).getItem(id).nameProject
+            innerHeaderTitle : "Проект : " + this.getItem(id).nameProject
         }
 
         newOrder.dataBody = {
-            data : $$(order.bodyBlockId).getItem(id),
+            data : this.getItem(id),
         }
-
         showPage(newOrder)
     }
 }

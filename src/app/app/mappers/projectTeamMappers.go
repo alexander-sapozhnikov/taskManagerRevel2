@@ -2,6 +2,8 @@ package mappers
 
 import (
 	"app/app/models"
+	"database/sql"
+	"fmt"
 	"log"
 )
 
@@ -12,13 +14,8 @@ func ProjectTeamAllGet() (projectTeamAll []models.ProjectTeam, err error) {
 
 	if err == nil {
 		for rows.Next() {
-			var projectTeam models.ProjectTeam
-			var teamLead models.Employee
-			err = rows.Scan(
-				&projectTeam.IdProjectTeam, &projectTeam.NameProjectTeam,
-				&teamLead.IdEmployee, &teamLead.FirstName, &teamLead.MiddleName, &teamLead.LastName)
+			projectTeam, err := scanRows(rows)
 			if err == nil {
-				projectTeam.TeamLead = teamLead
 				projectTeamAll = append(projectTeamAll, projectTeam)
 			}
 		}
@@ -32,15 +29,31 @@ func ProjectTeamGet(idProjectTeam int64) (projectTeam models.ProjectTeam, err er
 	rows, err := DB.Query(sqlString, idProjectTeam)
 
 	if err == nil && rows.Next() {
-		var teamLead models.Employee
-		err = rows.Scan(
-			&projectTeam.IdProjectTeam, &projectTeam.NameProjectTeam,
-			&teamLead.IdEmployee, &teamLead.FirstName, &teamLead.MiddleName, &teamLead.LastName)
-		if err == nil {
-			projectTeam.TeamLead = teamLead
-			return projectTeam, err
-		}
+		projectTeam, err = scanRows(rows)
 	}
+	return projectTeam, err
+}
+
+func scanRows(rows *sql.Rows) (projectTeam models.ProjectTeam, err error){
+	var idTeamLead sql.NullInt64
+	var firstName sql.NullString
+	var middleName sql.NullString
+	var lastName sql.NullString
+	err = rows.Scan(
+		&projectTeam.IdProjectTeam, &projectTeam.NameProjectTeam,
+		&idTeamLead, &firstName, &middleName, &lastName)
+
+	if err == nil {
+		projectTeam.TeamLead = models.Employee{
+			IdEmployee: idTeamLead.Int64,
+			FirstName: firstName.String,
+			MiddleName: middleName.String,
+			LastName: lastName.String,
+		}
+		return projectTeam, err
+	}
+
+	fmt.Println(err)
 	return projectTeam, err
 }
 

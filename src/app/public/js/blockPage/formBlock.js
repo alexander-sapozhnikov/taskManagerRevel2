@@ -645,13 +645,13 @@ function clickAddConfirm(){
 
     choiseDataBase(order.dataBody.dataBase).save($$(order.bodyBlockId).getValues(), order.dataBody.idInDataBase)
 
+    clickCancelAndCloseForAll()
+
     webix.message({
         text:"Успешно добавлено!",
         type:"success", 
         expire: 3000,
     })
-                
-    clickCancelAndCloseForAll()
 }
 
 function clickEditConfirm(){
@@ -667,30 +667,33 @@ function clickEditConfirm(){
     choiseDataBase(order.dataBody.dataBase)
         .update($$(order.bodyBlockId).getValues(), order.dataBody.idInDataBase)
 
+    clickCancelAndCloseForAll()
+
     webix.message({
         text:"Успешно сохранено!",
         type:"success", 
         expire: 3000,
     })
-                
-    clickCancelAndCloseForAll()
 }
 
 function clickCancelAndCloseForAll(){
-    //осторожно showpage in progress bar ожет сбить данные
     if(order.dataBody.helpFunction){
         order.dataBody.helpFunction()
     }
-
     if(order.bodyBlockId.includes(mainData.popupBlock)){
         $$(mainData.popupBlock).hide()
-        progressBar()
+        prepareActionBeforeClose()
     } else {
         clickBackToMain()
     }
 }
 
-function progressBar(){
+function prepareActionBeforeClose(){
+    //осторожно showpage in может сбить данные для helpFunction
+    if(order.dataBody.helpFunction){
+        order.dataBody.helpFunction()
+    }
+
     if(order.dataBody.oldOrder){
         showPage(order.dataBody.oldOrder)
         $$(mainData.bodyBlockId).disable();

@@ -3,6 +3,7 @@ package providers
 import (
 	"app/app/mappers"
 	"app/app/models"
+	"time"
 )
 
 func TaskGet(idTask int64) map[string]interface{} {
@@ -28,6 +29,15 @@ func TaskGetByEmployee(idEmployee int64) map[string]interface{} {
 	data["data"] = employee
 	return data
 }
+
+func TaskGetByEmployeeAndDate(idEmployee int64, date time.Time, err error) map[string]interface{} {
+	data := make(map[string]interface{})
+	employee, err := mappers.TaskGetByEmployeeAndDate(idEmployee, date)
+	data["error"] = err
+	data["data"] = employee
+	return data
+}
+
 
 func TaskSave(task models.Task, err error) map[string]interface{} {
 	data := make(map[string]interface{})
