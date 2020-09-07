@@ -11,6 +11,7 @@ require (
 	github.com/lib/pq v1.1.1
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
+	github.com/revel/cmd v1.0.3 // indirect
 	github.com/revel/config v1.0.0 // indirect
 	github.com/revel/log15 v2.11.20+incompatible // indirect
 	github.com/revel/modules v1.0.0
@@ -19,7 +20,8 @@ require (
 	github.com/twinj/uuid v1.0.0 // indirect
 	github.com/xeonx/timeago v1.0.0-rc4 // indirect
 	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
-	golang.org/x/tools v0.0.0-20200827010519-17fd2f27a9e3
+	golang.org/x/sys v0.0.0-20200905004654-be1d3432aa8f // indirect
+	golang.org/x/tools v0.0.0-20200904185747-39188db58858
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/stack.v0 v0.0.0-20141108040640-9b43fcefddd0 // indirect
 )

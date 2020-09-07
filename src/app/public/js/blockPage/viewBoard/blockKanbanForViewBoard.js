@@ -64,6 +64,7 @@ export function blockKanban(pt, pr){
         projectTeam.employees.forEach((employee) => {
             getTasksForEmployee(employee, date)
         })
+        getTasksForEmployee(projectTeam.teamLead, date)
     })
 
 
@@ -111,6 +112,15 @@ function makeColumnEmployeesForDay(){
             },
         })
     })
+
+    if(projectTeam.teamLead.idEmployee > 0){
+        kanbanListForDay.push({
+            header: projectTeam.teamLead.firstName + " " + projectTeam.teamLead.lastName,
+            body :{
+                id : "employee_" + projectTeam.teamLead.idEmployee,
+            },
+        })
+    }
 
     return kanbanListForDay
 }

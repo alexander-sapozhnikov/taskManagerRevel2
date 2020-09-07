@@ -2,7 +2,7 @@ import {mainData, Order} from "../data/mainData.js";
 import {showPage} from "../showPage.js";
 import {projectData} from "../data/projectData.js";
 import {employeeData} from "../data/employeeData.js";
-import {getHeaderIdForThisPage, informAboutErrorWithWorkData} from "../supporting/helpFunction.js";
+import {informAboutErrorWithWorkData} from "../supporting/helpFunction.js";
 import {projectTeamData} from "../data/projectTeamData.js"
 import {deleteEmployeeFromTasks} from "../supporting/helpFunction.js";
 
@@ -61,24 +61,40 @@ function drawEditProjectTeamBlock(){
         ]
     }, $$(order.bodyBlockId))
 
-    webix.extend($$(idEmployeeBlock), webix.ProgressBar);
-    $$(idEmployeeBlock).showProgress({
-        type:"icon",
-        hide : false
-    });
-
-    webix.extend($$("blockProject"), webix.ProgressBar);
-    $$("blockProject").showProgress({
-        type:"icon",
-        hide : false
-    });
-
     blockTeamLead()
     blockEmployee()
     blockProject()
 }
 
 function blockTeamLead(){
+    webix.extend($$("blockTeamLead"), webix.ProgressBar);
+    $$("blockTeamLead").showProgress({
+        type:"icon",
+        hide : false
+    });
+    $$("blockTeamLead").disable()
+
+    let teamLead = {
+        firstName : "",
+        lastName : ""
+    }
+
+    projectTeamData.get(order.dataBody.data.idProjectTeam)
+        .then(response =>  response.json())
+        .then( response => {
+            if(response.error){
+                informAboutErrorWithWorkData(response)
+                return
+            }
+            if(response.data){
+                teamLead = response.data.teamLead
+            }
+            drawBlockTeamLead(teamLead)
+        })
+        .catch(error => informAboutErrorWithWorkData(error))
+}
+
+function drawBlockTeamLead(teamLead){
     webix.ui({
         id : "blockTeamLead",
         cols : [
@@ -86,7 +102,7 @@ function blockTeamLead(){
                 id : "nameTeamLead",
                 view:"label", 
                 align: "center",
-                label : "Team Lead : "+ order.dataBody.data.teamLead.firstName+ " " + order.dataBody.data.teamLead.lastName,
+                label : "Team Lead : "+ teamLead.firstName+ " " + teamLead.lastName,
                 width : 250
             },
             {
@@ -101,6 +117,13 @@ function blockTeamLead(){
 }
 
 function blockEmployee(){
+    webix.extend($$(idEmployeeBlock), webix.ProgressBar);
+    $$(idEmployeeBlock).showProgress({
+        type:"icon",
+        hide : false
+    });
+    $$(idEmployeeBlock).disable()
+
     employeeData.getByProjectTeam(order.dataBody.data)
         .then(response =>  response.json())
         .then( response => {
@@ -138,6 +161,14 @@ function drawBlockEmployee(employees){
 }
 
 function blockProject() {
+    webix.extend($$("blockProject"), webix.ProgressBar);
+    $$("blockProject").showProgress({
+        type:"icon",
+        hide : false
+    });
+
+    $$("blockProject").disable()
+
     projectData.getProjectByProjectTeam(order.dataBody.data)
         .then(response =>  response.json())
         .then( response => {
@@ -222,14 +253,32 @@ function clickChangeTeamLead(){
         form : mainData.typeFormEdit,
         objActive : $$("nameTeamLead"),
         dataBase : mainData.stateProjectTeam,
-        oldOrder : order,
+        helpFunction : updateTeamLead,
         idInDataBase : order.dataBody.data.idProjectTeam,
 
     }
 
     showPage(newOrder)
 }
-
+function updateTeamLead(){
+    let employee = this.data
+    projectData.getProjectByProjectTeam(order.dataBody.data)
+    .then(response =>  response.json())
+    .then( response => {
+        if(response.error){
+            informAboutErrorWithWorkData(response)
+            return
+        }
+        if(!response.data){
+            response.data = []
+        }
+        for(let project of response.data) {
+            deleteEmployeeFromTasks(employee, project.idProject)
+        }
+    })
+    .catch(error => informAboutErrorWithWorkData(error))
+    blockTeamLead()
+}
 
 function clickDeleteItem(_, id){
 
@@ -312,7 +361,7 @@ function clickAddEmployee(){
         data : order.dataBody.data, 
         objActive : this,
         idInDataBase : order.dataBody.data.idProjectTeam,
-        oldOrder : order
+        helpFunction : blockEmployee
     }
 
     showPage(newOrder)
@@ -333,7 +382,7 @@ function clickAddProject(){
         data : order.dataBody.data, 
         objActive : this,
         idInDataBase : order.dataBody.data.idProjectTeam,
-        oldOrder : order
+        helpFunction : blockProject
     }
 
     showPage(newOrder)

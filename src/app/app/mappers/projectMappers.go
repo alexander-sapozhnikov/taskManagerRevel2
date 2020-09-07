@@ -9,6 +9,8 @@ func ProjectAllGet() (projectAll []models.Project, err error) {
 	sqlString := "SELECT idproject, nameproject, p.idprojectteam, p.nameprojectteam from project LEFT JOIN projectteam p on project.idprojectteam = p.idprojectteam ORDER BY idproject"
 	rows, err := DB.Query(sqlString)
 
+	defer rows.Close()
+
 	if err == nil {
 		for rows.Next() {
 			var project models.Project
@@ -35,6 +37,9 @@ func ProjectGet(idProject int64) (project models.Project, err error) {
 		"left join employee e on p.idteamlead = e.idemployee " +
 		"WHERE idproject = $1"
 	rows, err := DB.Query(sqlString, idProject)
+
+	defer rows.Close()
+
 	if err == nil && rows.Next() {
 		var idProjectTeam sql.NullInt64
 		var nameProjectTeam sql.NullString
@@ -65,11 +70,11 @@ func ProjectGet(idProject int64) (project models.Project, err error) {
 	return project, err
 }
 
-func ProjectGetByProjectTeam(idProjectTeam int64) ([]models.Project, error) {
+func ProjectGetByProjectTeam(idProjectTeam int64) (projectAll []models.Project, err error) {
 	sqlString := "SELECT idproject, nameproject from project LEFT JOIN projectteam p on project.idprojectteam = p.idprojectteam WHERE p.idprojectteam = $1"
 	rows, err := DB.Query(sqlString, idProjectTeam)
 
-	var projectAll []models.Project
+	defer rows.Close()
 
 	if err == nil {
 		for rows.Next() {

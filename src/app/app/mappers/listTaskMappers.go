@@ -9,6 +9,8 @@ func ListTaskGetByProject(idProjectTeam int64) ([]models.ListTask, error) {
 	sqlString := "SELECT idlisttask, namelisttask FROM listtask left outer join project p on p.idproject = listtask.idproject WHERE p.idproject = $1"
 	rows, err := DB.Query(sqlString, idProjectTeam)
 	var listTaskAll []models.ListTask
+	
+	defer rows.Close()
 
 	if err == nil {
 		for rows.Next() {

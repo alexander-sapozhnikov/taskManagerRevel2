@@ -1,0 +1,14 @@
+{
+    "sqltools.connections": [
+        {
+            "database": "postgres",
+            "driver": "PostgreSQL",
+            "name": "revel",
+            "password": "1",
+            "port": 5432,
+            "previewLimit": 50,
+            "server": "localhost",
+            "username": "postgres"
+        }
+    ]
+}

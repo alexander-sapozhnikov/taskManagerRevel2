@@ -41,6 +41,13 @@ class ProjectTeamData{
     save(item){
         item.teamLead = {}
         item.teamLead.idEmployee = +item.idTeamLead
+        let employees = item.employees.split(",")
+        item.employees = []
+        for(let id of employees){
+            item.employees.push({
+                idEmployee : +id
+            })
+        }
         dataUsualAction.save(item, URL)
     }
 

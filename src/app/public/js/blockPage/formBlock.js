@@ -1,5 +1,5 @@
 import {mainData} from "../data/mainData.js";
-import {projectTeamData} from "../data/ProjectTeamData.js";
+import {projectTeamData} from "../data/projectTeamData.js";
 import {statusData} from "../data/statusData.js";
 import {urgencyData} from "../data/urgencyData.js";
 import {employeeData} from "../data/employeeData.js"
@@ -12,6 +12,7 @@ import {taskData} from "../data/taskData.js";
 let order
 let buttons = [
     { 
+        id : "cancel",
         view:"button", 
         value:"Отменить" ,
         click : clickCancelAndCloseForAll
@@ -676,9 +677,9 @@ function clickEditConfirm(){
     })
 }
 
-function clickCancelAndCloseForAll(){
-    if(order.dataBody.helpFunction){
-        order.dataBody.helpFunction()
+function clickCancelAndCloseForAll(id){
+    if(order.dataBody.helpFunction && id !== "cancel"){
+        setTimeout(() => { order.dataBody.helpFunction()}, 0);
     }
     if(order.bodyBlockId.includes(mainData.popupBlock)){
         $$(mainData.popupBlock).hide()
@@ -689,11 +690,6 @@ function clickCancelAndCloseForAll(){
 }
 
 function prepareActionBeforeClose(){
-    //осторожно showpage in может сбить данные для helpFunction
-    if(order.dataBody.helpFunction){
-        order.dataBody.helpFunction()
-    }
-
     if(order.dataBody.oldOrder){
         showPage(order.dataBody.oldOrder)
         $$(mainData.bodyBlockId).disable();

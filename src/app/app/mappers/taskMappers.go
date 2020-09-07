@@ -10,6 +10,8 @@ func TaskGet(idTask int64) (task models.Task, err error) {
 	sqlString := "SELECT idtask, formulation, description, position, theoreticalTimeWork, realtimework, dateexecution, l.idlisttask, namelisttask, l.idproject, nameproject, u.idurgency, nameurgency, s.idstatus, namestatus, e.idemployee, firstname, middlename, lastname FROM task LEFT JOIN listtask l on l.idlisttask = task.idlisttask LEFT JOIN urgency u on u.idurgency = task.idurgency LEFT JOIN status s on s.idstatus = task.idstatus LEFT JOIN employee e on e.idemployee = task.idemployee  LEFT JOIN project p on l.idproject = p.idproject WHERE  idtask = $1 ORDER BY idtask"
 	rows, err := DB.Query(sqlString, idTask)
 
+	defer rows.Close()
+
 	if err == nil && rows.Next() {
 		return ScanRows(rows)
 	}
@@ -20,6 +22,9 @@ func TaskGet(idTask int64) (task models.Task, err error) {
 func TaskGetByListTask(idListTask int64) (tasks []models.Task, err error) {
 	sqlString := "SELECT idtask, formulation, description, position, theoreticalTimeWork, realtimework, dateexecution, l.idlisttask, namelisttask, l.idproject, nameproject, u.idurgency, nameurgency, s.idstatus, namestatus, e.idemployee, firstname, middlename, lastname FROM task LEFT JOIN listtask l on l.idlisttask = task.idlisttask LEFT JOIN urgency u on u.idurgency = task.idurgency LEFT JOIN status s on s.idstatus = task.idstatus LEFT JOIN employee e on e.idemployee = task.idemployee  LEFT JOIN project p on l.idproject = p.idproject WHERE  l.idlisttask = $1 ORDER BY idtask"
 	rows, err := DB.Query(sqlString, idListTask)
+
+	defer rows.Close()
+
 	for err == nil && rows.Next() {
 		task, err := ScanRows(rows)
 		if err == nil {
@@ -33,6 +38,8 @@ func TaskGetByListTask(idListTask int64) (tasks []models.Task, err error) {
 func TaskGetByEmployee(idEmployee int64) (tasks []models.Task, err error) {
 	sqlString := "SELECT idtask, formulation, description, position, theoreticalTimeWork, realtimework, dateexecution, l.idlisttask, namelisttask, l.idproject, nameproject, u.idurgency, nameurgency, s.idstatus, namestatus, e.idemployee, firstname, middlename, lastname FROM task LEFT JOIN listtask l on l.idlisttask = task.idlisttask LEFT JOIN urgency u on u.idurgency = task.idurgency LEFT JOIN status s on s.idstatus = task.idstatus LEFT JOIN employee e on e.idemployee = task.idemployee  LEFT JOIN project p on l.idproject = p.idproject WHERE  e.idemployee = $1 ORDER BY position"
 	rows, err := DB.Query(sqlString, idEmployee)
+
+	defer rows.Close()
 
 	for err == nil && rows.Next() {
 		task, err := ScanRows(rows)
@@ -50,16 +57,18 @@ func TaskGetByEmployeeAndDate(idEmployee int64, date time.Time) (tasks []models.
 	sqlString := "SELECT idtask, formulation, description, position, theoreticalTimeWork, realtimework, dateexecution, l.idlisttask, namelisttask, l.idproject, nameproject, u.idurgency, nameurgency, s.idstatus, namestatus, e.idemployee, firstname, middlename, lastname FROM task LEFT JOIN listtask l on l.idlisttask = task.idlisttask LEFT JOIN urgency u on u.idurgency = task.idurgency LEFT JOIN status s on s.idstatus = task.idstatus LEFT JOIN employee e on e.idemployee = task.idemployee  LEFT JOIN project p on l.idproject = p.idproject WHERE  e.idemployee = $1 and dateexecution between $2 AND $3 ORDER BY position"
 	rows, err := DB.Query(sqlString, idEmployee, timeBefore, timeAfter)
 
+	defer rows.Close()
+
 	for err == nil && rows.Next() {
 		task, err := ScanRows(rows)
 		if err == nil {
 			tasks = append(tasks, task)
 		}
+
 	}
 
 	return tasks, err
 }
-
 
 func ScanRows(rows *sql.Rows) (task models.Task, err error) {
 	var listTask models.ListTask
@@ -95,7 +104,7 @@ func ScanRows(rows *sql.Rows) (task models.Task, err error) {
 
 func TaskSave(task models.Task) (err error) {
 	if task.Employee.IdEmployee == 0 {
-		sqlString := `INSERT INTO task (formulation, description, theoreticaltimework, idlisttask, idurgency, idStatus) VALUES ($1, $2, $3, $4, $5, $6);`
+		sqlString := `INSERT INTO task (formulation, description, theoreticaltimework, idlisttask, idurgency, idStatus, idemployee) VALUES ($1, $2, $3, $4, $5, $6, NULL);`
 		_, err = DB.Exec(sqlString, task.Formulation, task.Description, task.TheoreticalTimeWork,
 			task.ListTask.IdListTask, task.Urgency.IdUrgency, task.Status.IdStatus)
 	} else {

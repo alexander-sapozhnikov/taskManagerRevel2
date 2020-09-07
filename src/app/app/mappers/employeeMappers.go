@@ -7,7 +7,8 @@ import (
 func EmployeeAllGet() (employees []models.Employee, err error) {
 	sqlString := "SELECT * FROM employee ORDER BY idemployee"
 	rows, err := DB.Query(sqlString)
-
+	defer rows.Close()
+	
 	if err == nil {
 		for rows.Next() {
 			var employee models.Employee
@@ -21,9 +22,11 @@ func EmployeeAllGet() (employees []models.Employee, err error) {
 	return employees, err
 }
 
+
 func EmployeeGet(idEmployee int64) (currentEmployee models.Employee, err error) {
 	sqlString := "SELECT * FROM  employee WHERE  idemployee = $1"
 	rows, err := DB.Query(sqlString, idEmployee)
+	defer rows.Close()
 
 	if err == nil && rows.Next() {
 		var employee models.Employee
@@ -40,6 +43,7 @@ func EmployeeGetByProjectTeam(idProjectTeam int64) ([]models.Employee, error) {
 	sqlString := "SELECT e.idemployee, firstname, middlename, lastname FROM employee left join employeeandprojectteam e on employee.idemployee = e.idemployee WHERE idprojectteam = $1"
 	rows, err := DB.Query(sqlString, idProjectTeam)
 	var employeeAll []models.Employee
+	defer rows.Close()
 
 	if err == nil {
 		for rows.Next() {

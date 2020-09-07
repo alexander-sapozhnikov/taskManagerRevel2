@@ -3,8 +3,9 @@ package controllers
 import (
 	"app/app/models"
 	"app/app/providers"
-	"github.com/revel/revel"
 	"time"
+
+	"github.com/revel/revel"
 )
 
 func (c App) TaskGet(idTask int64) revel.Result {
@@ -20,7 +21,8 @@ func (c App) TaskGetByEmployee(idEmployee int64) revel.Result {
 }
 
 func (c App) TaskGetByEmployeeAndDate(idEmployee int64) revel.Result {
-	parseTime, err := time.Parse("Mon Jan 02 2006 15:04:05 GMT+0400", c.Params.Get("date"))
+	format := "Mon Jan 02 2006 15:04:05 GMT+0400"
+	parseTime, err := time.Parse(format, c.Params.Get("date")[0:len(format)])
 	return c.RenderJSON(providers.TaskGetByEmployeeAndDate(idEmployee, parseTime, err))
 }
 

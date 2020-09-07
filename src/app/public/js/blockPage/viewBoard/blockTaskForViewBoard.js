@@ -242,8 +242,8 @@ function clickOnBeforeDragBlockTask(context){
 
 function clickOnBeforeDropBlockTask(context){
     let source = webix.DragControl.getContext();
-    if(source.from.B.id === idBlockTaskAndListTask){
-        return false
+    if(source.from.B.id === idTask){
+        return true
     }
     let task = source.from.getItem(source.source[0])
     task.employee ={}
